@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import './App.css'
 
 const pages = [
@@ -138,6 +138,29 @@ const transcriptSegments = [
     slideId: 'slide-03',
     time: '05:26 - 06:20',
     text: 'The data table confirms the pattern. The slope is consistent with the predicted force over mass relationship within the measured error range.',
+  },
+]
+
+const processingSteps = [
+  {
+    label: 'Detecting slide transitions',
+    detail: 'Finding start and end timestamps for each slide segment.',
+    icon: 'auto_awesome_motion',
+  },
+  {
+    label: 'Extracting Thai/English OCR',
+    detail: 'Reading slide text and mapping it to the captured timestamp.',
+    icon: 'document_scanner',
+  },
+  {
+    label: 'Transcribing lecture audio',
+    detail: 'Creating searchable transcript blocks with timestamps.',
+    icon: 'record_voice_over',
+  },
+  {
+    label: 'Generating TOC + summaries',
+    detail: 'Pairing OCR and transcript context for slide-by-slide review.',
+    icon: 'summarize',
   },
 ]
 
@@ -337,7 +360,7 @@ function LibraryTopbar({ activePage, onNavigate }) {
   )
 }
 
-function LibrarySidebar({ activePage, onNavigate }) {
+function LibrarySidebar({ activePage, onNavigate, onNewProject }) {
   const lowerItems = [
     { icon: 'archive', label: 'Archive' },
     { icon: 'help_outline', label: 'Help' },
@@ -362,7 +385,7 @@ function LibrarySidebar({ activePage, onNavigate }) {
           ))}
         </nav>
         <div className="library-cta-wrap">
-          <button className="library-new-project" type="button">
+          <button className="library-new-project" type="button" onClick={onNewProject}>
             <MaterialIcon>add</MaterialIcon>
             <span>New Project</span>
           </button>
@@ -468,14 +491,213 @@ function SlideInsightPanel({ activeSlide, onSeek }) {
   )
 }
 
+
+function UploadLectureModal({
+  mode,
+  onClose,
+  onModeChange,
+  onProcess,
+  onReset,
+  processingStep,
+}) {
+  const isProcessing = processingStep >= 0 && processingStep < processingSteps.length
+  const isComplete = processingStep >= processingSteps.length
+
+  return (
+    <div className="upload-overlay" role="dialog" aria-modal="true" aria-labelledby="upload-title">
+      <div className="upload-backdrop-context" aria-hidden="true">
+        <div>
+          <h2>Projects Overview</h2>
+          <p>Manage and analyze your recent lecture captures.</p>
+        </div>
+        <div className="upload-background-grid">
+          <span className="wide"><MaterialIcon>video_library</MaterialIcon></span>
+          <span><MaterialIcon>analytics</MaterialIcon></span>
+          <span />
+          <span />
+          <span />
+        </div>
+      </div>
+
+      <section className="upload-modal">
+        <header className="upload-header">
+          <div>
+            <h2 id="upload-title">Upload Lecture</h2>
+            <p>Start your analysis by adding a video file or a link.</p>
+          </div>
+          <button className="upload-close" type="button" onClick={onClose} aria-label="Close upload modal">
+            <MaterialIcon>close</MaterialIcon>
+          </button>
+        </header>
+
+        {processingStep < 0 ? (
+          <>
+            <div className="upload-tabs" role="tablist" aria-label="Upload source">
+              <button
+                className={mode === 'file' ? 'active' : ''}
+                type="button"
+                onClick={() => onModeChange('file')}
+                role="tab"
+                aria-selected={mode === 'file'}
+              >
+                <MaterialIcon>upload_file</MaterialIcon>
+                <span>File Upload</span>
+              </button>
+              <button
+                className={mode === 'youtube' ? 'active' : ''}
+                type="button"
+                onClick={() => onModeChange('youtube')}
+                role="tab"
+                aria-selected={mode === 'youtube'}
+              >
+                <MaterialIcon>link</MaterialIcon>
+                <span>YouTube URL</span>
+              </button>
+            </div>
+
+            <div className="upload-content">
+              {mode === 'file' ? (
+                <div className="drop-zone">
+                  <div className="drop-icon">
+                    <MaterialIcon>cloud_upload</MaterialIcon>
+                  </div>
+                  <div>
+                    <h3>Drag and drop your video file</h3>
+                    <p>MP4, MOV, or WEBM up to 2GB</p>
+                  </div>
+                  <button type="button">Browse Files</button>
+                </div>
+              ) : (
+                <div className="youtube-panel">
+                  <label htmlFor="youtube-url">Paste Lecture Link</label>
+                  <div className="youtube-input-wrap">
+                    <MaterialIcon>smart_display</MaterialIcon>
+                    <input
+                      id="youtube-url"
+                      placeholder="https://youtube.com/watch?v=..."
+                      type="url"
+                    />
+                  </div>
+                  <p>CoreCast will automatically fetch video metadata and transcripts if available.</p>
+                </div>
+              )}
+
+              <div className="upload-options">
+                <label>
+                  Lecture title
+                  <input defaultValue="Physics 101: Classical Mechanics - Lecture 12" />
+                </label>
+                <label>
+                  Language profile
+                  <select defaultValue="mixed">
+                    <option value="mixed">Thai + English mixed</option>
+                    <option value="thai">Thai</option>
+                    <option value="english">English</option>
+                  </select>
+                </label>
+              </div>
+            </div>
+          </>
+        ) : (
+          <div className="processing-panel">
+            <div className="processing-hero">
+              <div className={isComplete ? 'processing-ring complete' : 'processing-ring'}>
+                <MaterialIcon>{isComplete ? 'check' : 'sync'}</MaterialIcon>
+              </div>
+              <div>
+                <p className="eyebrow">CoreCast Pipeline</p>
+                <h3>{isComplete ? 'Lecture ready for review' : 'Processing lecture'}</h3>
+                <p>
+                  {isComplete
+                    ? 'Slides, OCR, transcript, TOC, and summaries are prepared in the Library workspace.'
+                    : 'Building the synchronized learning workspace from the uploaded lecture.'}
+                </p>
+              </div>
+            </div>
+
+            <div className="processing-steps">
+              {processingSteps.map((step, index) => {
+                const complete = processingStep > index
+                const active = processingStep === index
+
+                return (
+                  <div
+                    className={`processing-step${complete ? ' complete' : ''}${active ? ' active' : ''}`}
+                    key={step.label}
+                  >
+                    <div>
+                      <MaterialIcon>{complete ? 'check_circle' : step.icon}</MaterialIcon>
+                    </div>
+                    <span>
+                      <strong>{step.label}</strong>
+                      <em>{step.detail}</em>
+                    </span>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )}
+
+        <footer className="upload-footer">
+          {processingStep < 0 ? (
+            <>
+              <button className="upload-cancel" type="button" onClick={onClose}>Cancel</button>
+              <button className="upload-primary" type="button" onClick={onProcess}>
+                <span>Process Lecture</span>
+                <MaterialIcon>arrow_forward</MaterialIcon>
+              </button>
+            </>
+          ) : (
+            <>
+              <button className="upload-cancel" type="button" onClick={onReset} disabled={isProcessing}>
+                Upload Another
+              </button>
+              <button className="upload-primary" type="button" onClick={onClose} disabled={!isComplete}>
+                <span>Open Processed Library</span>
+                <MaterialIcon>arrow_forward</MaterialIcon>
+              </button>
+            </>
+          )}
+        </footer>
+      </section>
+    </div>
+  )
+}
+
 function LibraryPage({ activePage, onNavigate }) {
   const [activeSlideIndex, setActiveSlideIndex] = useState(1)
+  const [uploadModalOpen, setUploadModalOpen] = useState(false)
+  const [uploadMode, setUploadMode] = useState('file')
+  const [processingStep, setProcessingStep] = useState(-1)
   const activeSlide = slideSegments[activeSlideIndex]
+
+  useEffect(() => {
+    if (!uploadModalOpen || processingStep < 0 || processingStep >= processingSteps.length) {
+      return undefined
+    }
+
+    const timer = window.setTimeout(() => {
+      setProcessingStep((step) => step + 1)
+    }, 650)
+
+    return () => window.clearTimeout(timer)
+  }, [uploadModalOpen, processingStep])
+
+  const closeUploadModal = () => {
+    setUploadModalOpen(false)
+    setProcessingStep(-1)
+    setUploadMode('file')
+  }
 
   return (
     <div className="library-shell">
       <LibraryTopbar activePage={activePage} onNavigate={onNavigate} />
-      <LibrarySidebar activePage={activePage} onNavigate={onNavigate} />
+      <LibrarySidebar
+        activePage={activePage}
+        onNavigate={onNavigate}
+        onNewProject={() => setUploadModalOpen(true)}
+      />
 
       <main className="library-main">
         <div className="library-grid">
@@ -591,6 +813,17 @@ function LibraryPage({ activePage, onNavigate }) {
       <button className="library-fab" type="button" aria-label="Open comments">
         <MaterialIcon>comment</MaterialIcon>
       </button>
+
+      {uploadModalOpen ? (
+        <UploadLectureModal
+          mode={uploadMode}
+          onClose={closeUploadModal}
+          onModeChange={setUploadMode}
+          onProcess={() => setProcessingStep(0)}
+          onReset={() => setProcessingStep(-1)}
+          processingStep={processingStep}
+        />
+      ) : null}
     </div>
   )
 }
