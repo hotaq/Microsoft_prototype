@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import './App.css'
 
 const pages = [
@@ -43,7 +43,9 @@ const categories = [
   },
 ]
 
-const projects = [
+const defaultLectureTitle = 'Physics 101: Classical Mechanics - Lecture 12'
+
+const initialProjects = [
   {
     title: 'Quantum Superposition Fundamentals',
     category: 'Science',
@@ -75,6 +77,55 @@ const projects = [
     alt: 'Laptop screen showing syntax-highlighted code',
   },
 ]
+
+const languageLabels = {
+  mixed: 'Thai + English mixed',
+  thai: 'Thai',
+  english: 'English',
+}
+
+const defaultLecture = {
+  title: defaultLectureTitle,
+  sourceLabel: 'Sample lecture video',
+  languageProfile: languageLabels.mixed,
+}
+
+function formatFileSize(bytes = 0) {
+  if (!bytes) {
+    return '0 MB'
+  }
+
+  const units = ['B', 'KB', 'MB', 'GB']
+  const unitIndex = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1)
+  const value = bytes / 1024 ** unitIndex
+
+  return `${value.toFixed(value >= 10 || unitIndex === 0 ? 0 : 1)} ${units[unitIndex]}`
+}
+
+function inferLectureTitle(fileName = '') {
+  return (
+    fileName
+      .replace(/\.[^/.]+$/, '')
+      .replace(/[-_]+/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim() || defaultLectureTitle
+  )
+}
+
+function createUploadedProject({ languageProfile, mode, selectedFile, title, youtubeUrl }) {
+  const sourceLabel = mode === 'file' ? selectedFile?.name : youtubeUrl.trim()
+
+  return {
+    id: `uploaded-${Date.now()}`,
+    title: title.trim() || defaultLectureTitle,
+    category: languageLabels[languageProfile] ?? 'Uploaded',
+    edited: `${sourceLabel || 'Manual upload'} · Added just now`,
+    status: 'Completed',
+    actionIcon: 'analytics',
+    image: libraryVideoImage,
+    alt: 'Uploaded lecture ready for multimodal review',
+  }
+}
 
 const slideSegments = [
   {
@@ -295,7 +346,7 @@ function ProjectRow({ project }) {
   )
 }
 
-function ProjectsPage({ activePage, onNavigate }) {
+function ProjectsPage({ activePage, onNavigate, projectItems }) {
   return (
     <div className="app-shell">
       <ProjectSidebar activePage={activePage} onNavigate={onNavigate} />
@@ -318,8 +369,8 @@ function ProjectsPage({ activePage, onNavigate }) {
           </div>
 
           <div className="project-list">
-            {projects.map((project) => (
-              <ProjectRow project={project} key={project.title} />
+            {projectItems.map((project) => (
+              <ProjectRow project={project} key={project.id ?? project.title} />
             ))}
           </div>
         </section>
@@ -389,88 +440,36 @@ function TranscriptSegment({ segment, active, onSelect }) {
   )
 }
 
-function SlideToc({ activeSlide, onSelect }) {
-  return (
-    <section className="sync-card slide-toc-card" aria-labelledby="slide-toc-title">
-      <div className="sync-card-header">
-        <div>
-          <p className="eyebrow">Digital TOC</p>
-          <h2 id="slide-toc-title">Slide Timeline</h2>
-        </div>
-        <span>{slideSegments.length} slides</span>
-      </div>
-      <div className="slide-toc-list">
-        {slideSegments.map((slide, index) => {
-          const active = activeSlide.id === slide.id
-
-          return (
-            <button
-              className={`slide-toc-item${active ? ' active' : ''}`}
-              type="button"
-              key={slide.id}
-              onClick={() => onSelect(index)}
-            >
-              <span className="slide-time">{slide.time}</span>
-              <span className="slide-copy">
-                <strong>{slide.label}</strong>
-                <em>{slide.title}</em>
-              </span>
-              <MaterialIcon>{active ? 'play_circle' : 'arrow_forward'}</MaterialIcon>
-            </button>
-          )
-        })}
-      </div>
-    </section>
-  )
-}
-
-function SlideInsightPanel({ activeSlide, onSeek }) {
-  return (
-    <section className="slide-insight-grid">
-      <article className="sync-card ocr-card">
-        <div className="sync-card-header">
-          <div>
-            <p className="eyebrow">Active Slide OCR</p>
-            <h2>{activeSlide.title}</h2>
-          </div>
-          <span>{activeSlide.confidence}</span>
-        </div>
-        <div className="ocr-lines">
-          {activeSlide.ocr.map((line) => (
-            <p key={line}>{line}</p>
-          ))}
-        </div>
-      </article>
-
-      <button className="sync-card summary-card" type="button" onClick={onSeek}>
-        <div className="sync-card-header">
-          <div>
-            <p className="eyebrow">AI Slide Summary</p>
-            <h2>{activeSlide.label}</h2>
-          </div>
-          <span>Seek {activeSlide.time}</span>
-        </div>
-        <p>{activeSlide.summary}</p>
-        <div className="paired-context">
-          <MaterialIcon>hub</MaterialIcon>
-          <span>Paired OCR + transcript segment: {activeSlide.range}</span>
-        </div>
-      </button>
-    </section>
-  )
-}
-
-
 function UploadLectureModal({
+  canProcess,
+  languageProfile,
+  lectureTitle,
   mode,
   onClose,
+  onFileSelect,
+  onLanguageProfileChange,
+  onLectureTitleChange,
   onModeChange,
   onProcess,
   onReset,
+  onYoutubeUrlChange,
   processingStep,
+  selectedFile,
+  youtubeUrl,
 }) {
+  const fileInputRef = useRef(null)
   const isProcessing = processingStep >= 0 && processingStep < processingSteps.length
   const isComplete = processingStep >= processingSteps.length
+  const sourceLabel = mode === 'file' ? selectedFile?.name : youtubeUrl.trim()
+
+  const handleFileChange = (event) => {
+    onFileSelect(event.target.files?.[0] ?? null)
+  }
+
+  const handleFileDrop = (event) => {
+    event.preventDefault()
+    onFileSelect(event.dataTransfer.files?.[0] ?? null)
+  }
 
   return (
     <div className="upload-overlay" role="dialog" aria-modal="true" aria-labelledby="upload-title">
@@ -512,15 +511,40 @@ function UploadLectureModal({
 
             <div className="upload-content">
               {mode === 'file' ? (
-                <div className="drop-zone">
+                <div
+                  className={`drop-zone${selectedFile ? ' has-file' : ''}`}
+                  onDragOver={(event) => event.preventDefault()}
+                  onDrop={handleFileDrop}
+                >
+                  <input
+                    accept="video/mp4,video/quicktime,video/webm,.mp4,.mov,.webm"
+                    className="visually-hidden"
+                    onChange={handleFileChange}
+                    ref={fileInputRef}
+                    type="file"
+                  />
                   <div className="drop-icon">
-                    <MaterialIcon>cloud_upload</MaterialIcon>
+                    <MaterialIcon>{selectedFile ? 'movie' : 'cloud_upload'}</MaterialIcon>
                   </div>
                   <div>
-                    <h3>Drag and drop your video file</h3>
-                    <p>MP4, MOV, or WEBM up to 2GB</p>
+                    <h3>{selectedFile ? 'Video file selected' : 'Drag and drop your video file'}</h3>
+                    <p>{selectedFile ? 'Ready to run CoreCast processing' : 'MP4, MOV, or WEBM up to 2GB'}</p>
                   </div>
-                  <button type="button">Browse Files</button>
+                  {selectedFile ? (
+                    <div className="selected-file-card">
+                      <MaterialIcon>description</MaterialIcon>
+                      <span>
+                        <strong>{selectedFile.name}</strong>
+                        <em>
+                          {formatFileSize(selectedFile.size)}
+                          {selectedFile.type ? ` · ${selectedFile.type}` : ''}
+                        </em>
+                      </span>
+                    </div>
+                  ) : null}
+                  <button type="button" onClick={() => fileInputRef.current?.click()}>
+                    {selectedFile ? 'Replace File' : 'Browse Files'}
+                  </button>
                 </div>
               ) : (
                 <div className="youtube-panel">
@@ -529,8 +553,10 @@ function UploadLectureModal({
                     <MaterialIcon>smart_display</MaterialIcon>
                     <input
                       id="youtube-url"
+                      onChange={(event) => onYoutubeUrlChange(event.target.value)}
                       placeholder="https://youtube.com/watch?v=..."
                       type="url"
+                      value={youtubeUrl}
                     />
                   </div>
                   <p>CoreCast will automatically fetch video metadata and transcripts if available.</p>
@@ -540,11 +566,17 @@ function UploadLectureModal({
               <div className="upload-options">
                 <label>
                   Lecture title
-                  <input defaultValue="Physics 101: Classical Mechanics - Lecture 12" />
+                  <input
+                    onChange={(event) => onLectureTitleChange(event.target.value)}
+                    value={lectureTitle}
+                  />
                 </label>
                 <label>
                   Language profile
-                  <select defaultValue="mixed">
+                  <select
+                    onChange={(event) => onLanguageProfileChange(event.target.value)}
+                    value={languageProfile}
+                  >
                     <option value="mixed">Thai + English mixed</option>
                     <option value="thai">Thai</option>
                     <option value="english">English</option>
@@ -564,8 +596,8 @@ function UploadLectureModal({
                 <h3>{isComplete ? 'Lecture ready for review' : 'Processing lecture'}</h3>
                 <p>
                   {isComplete
-                    ? 'Slides, OCR, transcript, TOC, and summaries are prepared in the Library workspace.'
-                    : 'Building the synchronized learning workspace from the uploaded lecture.'}
+                    ? `${lectureTitle || defaultLectureTitle} is now added to your workspace.`
+                    : `Building the synchronized learning workspace${sourceLabel ? ` from ${sourceLabel}` : ''}.`}
                 </p>
               </div>
             </div>
@@ -598,7 +630,7 @@ function UploadLectureModal({
           {processingStep < 0 ? (
             <>
               <button className="upload-cancel" type="button" onClick={onClose}>Cancel</button>
-              <button className="upload-primary" type="button" onClick={onProcess}>
+              <button className="upload-primary" type="button" onClick={onProcess} disabled={!canProcess}>
                 <span>Process Lecture</span>
                 <MaterialIcon>arrow_forward</MaterialIcon>
               </button>
@@ -620,12 +652,20 @@ function UploadLectureModal({
   )
 }
 
-function LibraryPage({ activePage, onNavigate }) {
+function LibraryPage({ activePage, currentLecture, onNavigate, onProjectCreated }) {
   const [activeSlideIndex, setActiveSlideIndex] = useState(1)
   const [uploadModalOpen, setUploadModalOpen] = useState(false)
   const [uploadMode, setUploadMode] = useState('file')
   const [processingStep, setProcessingStep] = useState(-1)
+  const [selectedFile, setSelectedFile] = useState(null)
+  const [lectureTitle, setLectureTitle] = useState(defaultLectureTitle)
+  const [languageProfile, setLanguageProfile] = useState('mixed')
+  const [youtubeUrl, setYoutubeUrl] = useState('')
+  const processedProjectRef = useRef(null)
   const activeSlide = slideSegments[activeSlideIndex]
+  const canProcess =
+    lectureTitle.trim().length > 0 &&
+    (uploadMode === 'file' ? Boolean(selectedFile) : youtubeUrl.trim().length > 0)
 
   useEffect(() => {
     if (!uploadModalOpen || processingStep < 0 || processingStep >= processingSteps.length) {
@@ -639,10 +679,72 @@ function LibraryPage({ activePage, onNavigate }) {
     return () => window.clearTimeout(timer)
   }, [uploadModalOpen, processingStep])
 
-  const closeUploadModal = () => {
-    setUploadModalOpen(false)
+  useEffect(() => {
+    if (!uploadModalOpen || processingStep !== processingSteps.length || processedProjectRef.current) {
+      return
+    }
+
+    const project = createUploadedProject({
+      languageProfile,
+      mode: uploadMode,
+      selectedFile,
+      title: lectureTitle,
+      youtubeUrl,
+    })
+    const sourceLabel = uploadMode === 'file' ? selectedFile?.name : youtubeUrl.trim()
+
+    onProjectCreated(project, {
+      title: project.title,
+      sourceLabel: sourceLabel || 'Uploaded lecture source',
+      languageProfile: languageLabels[languageProfile] ?? languageLabels.mixed,
+    })
+    processedProjectRef.current = project
+  }, [
+    languageProfile,
+    lectureTitle,
+    onProjectCreated,
+    processingStep,
+    selectedFile,
+    uploadModalOpen,
+    uploadMode,
+    youtubeUrl,
+  ])
+
+  const resetUploadForm = () => {
     setProcessingStep(-1)
     setUploadMode('file')
+    setSelectedFile(null)
+    setLectureTitle(defaultLectureTitle)
+    setLanguageProfile('mixed')
+    setYoutubeUrl('')
+    processedProjectRef.current = null
+  }
+
+  const openUploadModal = () => {
+    resetUploadForm()
+    setUploadModalOpen(true)
+  }
+
+  const closeUploadModal = () => {
+    setUploadModalOpen(false)
+    resetUploadForm()
+  }
+
+  const handleFileSelect = (file) => {
+    if (!file) {
+      return
+    }
+
+    setSelectedFile(file)
+    if (!lectureTitle.trim() || lectureTitle === defaultLectureTitle) {
+      setLectureTitle(inferLectureTitle(file.name))
+    }
+  }
+
+  const startProcessing = () => {
+    if (canProcess) {
+      setProcessingStep(0)
+    }
   }
 
   return (
@@ -650,7 +752,7 @@ function LibraryPage({ activePage, onNavigate }) {
       <LibrarySidebar
         activePage={activePage}
         onNavigate={onNavigate}
-        onNewProject={() => setUploadModalOpen(true)}
+        onNewProject={openUploadModal}
       />
 
       <main className="library-main">
@@ -678,15 +780,15 @@ function LibraryPage({ activePage, onNavigate }) {
 
             <div className="lecture-summary">
               <div className="lecture-title-row">
-                <h1 id="library-title">Physics 101: Classical Mechanics - Lecture 12</h1>
+                <h1 id="library-title">{currentLecture.title}</h1>
                 <time>{activeSlide.time}</time>
               </div>
               <p>
                 CoreCast is syncing the lecture video, current slide image, OCR text,
-                transcript segment, and AI summary into one review workspace.
+                transcript segment, and AI summary from {currentLecture.sourceLabel} into one review workspace.
               </p>
               <div className="lecture-actions">
-                {['Slide synced', 'OCR mapped', 'Transcript paired'].map((tag) => (
+                {['Slide synced', 'OCR mapped', 'Transcript paired', currentLecture.languageProfile].map((tag) => (
                   <span className="tag outline" key={tag}>
                     {tag}
                   </span>
@@ -698,13 +800,6 @@ function LibraryPage({ activePage, onNavigate }) {
               </div>
             </div>
 
-            <div className="mvp-sync-grid">
-              <SlideToc activeSlide={activeSlide} onSelect={setActiveSlideIndex} />
-              <SlideInsightPanel
-                activeSlide={activeSlide}
-                onSeek={() => setActiveSlideIndex(activeSlideIndex)}
-              />
-            </div>
           </section>
 
           <aside className="analysis-column" aria-label="Interactive transcript and metadata">
@@ -770,12 +865,21 @@ function LibraryPage({ activePage, onNavigate }) {
 
       {uploadModalOpen ? (
         <UploadLectureModal
+          canProcess={canProcess}
+          languageProfile={languageProfile}
+          lectureTitle={lectureTitle}
           mode={uploadMode}
           onClose={closeUploadModal}
+          onFileSelect={handleFileSelect}
+          onLanguageProfileChange={setLanguageProfile}
+          onLectureTitleChange={setLectureTitle}
           onModeChange={setUploadMode}
-          onProcess={() => setProcessingStep(0)}
-          onReset={() => setProcessingStep(-1)}
+          onProcess={startProcessing}
+          onReset={resetUploadForm}
+          onYoutubeUrlChange={setYoutubeUrl}
           processingStep={processingStep}
+          selectedFile={selectedFile}
+          youtubeUrl={youtubeUrl}
         />
       ) : null}
     </div>
@@ -803,13 +907,33 @@ function PlaceholderPage({ activePage, onNavigate }) {
 
 function App() {
   const [activePage, setActivePage] = useState('library')
+  const [projectItems, setProjectItems] = useState(initialProjects)
+  const [currentLecture, setCurrentLecture] = useState(defaultLecture)
+
+  const handleProjectCreated = (project, lecture) => {
+    setProjectItems((items) => [project, ...items])
+    setCurrentLecture(lecture)
+  }
 
   if (activePage === 'library') {
-    return <LibraryPage activePage={activePage} onNavigate={setActivePage} />
+    return (
+      <LibraryPage
+        activePage={activePage}
+        currentLecture={currentLecture}
+        onNavigate={setActivePage}
+        onProjectCreated={handleProjectCreated}
+      />
+    )
   }
 
   if (activePage === 'projects') {
-    return <ProjectsPage activePage={activePage} onNavigate={setActivePage} />
+    return (
+      <ProjectsPage
+        activePage={activePage}
+        onNavigate={setActivePage}
+        projectItems={projectItems}
+      />
+    )
   }
 
   return <PlaceholderPage activePage={activePage} onNavigate={setActivePage} />
