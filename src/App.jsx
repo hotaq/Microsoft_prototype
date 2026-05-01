@@ -550,9 +550,6 @@ function ProjectsPage({ activePage, onNavigate, onProjectOpen, projectItems }) {
         </section>
       </main>
 
-      <button className="fab" type="button" aria-label="Add new analysis">
-        <MaterialIcon>add</MaterialIcon>
-      </button>
     </div>
   )
 }
