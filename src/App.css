@@ -353,12 +353,19 @@
   border: 1px solid transparent;
   border-radius: 1rem;
   background: rgba(255, 255, 255, 0.48);
+  cursor: pointer;
   padding: 1.5rem;
   transition:
     background 180ms ease,
     border-color 180ms ease,
     box-shadow 180ms ease,
     transform 180ms ease;
+}
+
+.project-row:focus-visible {
+  border-color: var(--slate);
+  outline: 3px solid rgba(74, 78, 105, 0.18);
+  outline-offset: 3px;
 }
 
 .project-row:hover {
@@ -444,6 +451,7 @@
   border-radius: 999px;
   background: transparent;
   color: var(--slate);
+  pointer-events: none;
   transition:
     background 180ms ease,
     color 180ms ease,

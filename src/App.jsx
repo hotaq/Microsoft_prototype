@@ -47,6 +47,7 @@ const defaultLectureTitle = 'Physics 101: Classical Mechanics - Lecture 12'
 
 const initialProjects = [
   {
+    id: 'quantum-superposition-fundamentals',
     title: 'Quantum Superposition Fundamentals',
     category: 'Science',
     edited: 'Last edited Oct 24, 2023',
@@ -57,6 +58,7 @@ const initialProjects = [
     alt: 'Scientific visualization of blue and violet particle interactions',
   },
   {
+    id: 'advanced-vector-calculus-module-4',
     title: 'Advanced Vector Calculus: Module 4',
     category: 'Mathematics',
     edited: 'Last edited Oct 22, 2023',
@@ -67,6 +69,7 @@ const initialProjects = [
     alt: 'Notebook with mathematical equations on a bright desk',
   },
   {
+    id: 'react-native-performance-optimization',
     title: 'React Native Performance Optimization',
     category: 'Coding',
     edited: 'Last edited Oct 19, 2023',
@@ -120,10 +123,20 @@ function createUploadedProject({ languageProfile, mode, selectedFile, title, you
     title: title.trim() || defaultLectureTitle,
     category: languageLabels[languageProfile] ?? 'Uploaded',
     edited: `${sourceLabel || 'Manual upload'} · Added just now`,
+    sourceLabel: sourceLabel || 'Uploaded lecture source',
+    languageProfile: languageLabels[languageProfile] ?? languageLabels.mixed,
     status: 'Completed',
     actionIcon: 'analytics',
     image: libraryVideoImage,
     alt: 'Uploaded lecture ready for multimodal review',
+  }
+}
+
+function projectToLecture(project) {
+  return {
+    title: project.title,
+    sourceLabel: project.sourceLabel ?? project.edited,
+    languageProfile: project.languageProfile ?? project.category,
   }
 }
 
@@ -461,9 +474,24 @@ function CategoryCard({ category }) {
   )
 }
 
-function ProjectRow({ project }) {
+function ProjectRow({ onOpen, project }) {
+  const openProject = () => onOpen(project)
+
+  const handleKeyDown = (event) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault()
+      openProject()
+    }
+  }
+
   return (
-    <article className="project-row">
+    <article
+      className="project-row"
+      onClick={openProject}
+      onKeyDown={handleKeyDown}
+      role="button"
+      tabIndex={0}
+    >
       <div className="project-main">
         <img className="project-thumb" src={project.image} alt={project.alt} />
         <div>
@@ -480,15 +508,15 @@ function ProjectRow({ project }) {
           <p>Status</p>
           <strong>{project.status}</strong>
         </div>
-        <button className="project-action" type="button" aria-label={`${project.title} action`}>
-          <MaterialIcon>{project.actionIcon}</MaterialIcon>
-        </button>
+        <span className="project-action" aria-label={`Open ${project.title}`}>
+          <MaterialIcon>open_in_new</MaterialIcon>
+        </span>
       </div>
     </article>
   )
 }
 
-function ProjectsPage({ activePage, onNavigate, projectItems }) {
+function ProjectsPage({ activePage, onNavigate, onProjectOpen, projectItems }) {
   return (
     <div className="app-shell">
       <ProjectSidebar activePage={activePage} onNavigate={onNavigate} />
@@ -512,7 +540,11 @@ function ProjectsPage({ activePage, onNavigate, projectItems }) {
 
           <div className="project-list">
             {projectItems.map((project) => (
-              <ProjectRow project={project} key={project.id ?? project.title} />
+              <ProjectRow
+                onOpen={onProjectOpen}
+                project={project}
+                key={project.id ?? project.title}
+              />
             ))}
           </div>
         </section>
@@ -1057,6 +1089,11 @@ function App() {
     setCurrentLecture(lecture)
   }
 
+  const handleProjectOpen = (project) => {
+    setCurrentLecture(projectToLecture(project))
+    setActivePage('library')
+  }
+
   if (activePage === 'library') {
     return (
       <LibraryPage
@@ -1073,6 +1110,7 @@ function App() {
       <ProjectsPage
         activePage={activePage}
         onNavigate={setActivePage}
+        onProjectOpen={handleProjectOpen}
         projectItems={projectItems}
       />
     )
