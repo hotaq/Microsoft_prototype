@@ -909,10 +909,11 @@
 
 .transcript-segment.active {
   border-left: 4px solid var(--slate);
-  border-radius: 0.75rem;
-  background: rgba(201, 173, 167, 0.16);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
   color: var(--slate);
-  padding: 0.75rem;
+  padding: 0 0 0 0.75rem;
 }
 
 .transcript-time-row {
