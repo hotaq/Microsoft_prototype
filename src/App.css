@@ -580,151 +580,21 @@
   color: var(--primary);
 }
 
-.library-topbar {
-  position: fixed;
-  inset: 0 0 auto;
-  z-index: 50;
-  display: flex;
-  height: 4rem;
-  align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid rgba(154, 140, 152, 0.2);
-  background: rgba(242, 233, 228, 0.82);
-  box-shadow: 0 4px 20px rgba(201, 173, 167, 0.15);
-  padding: 0 2rem;
-  backdrop-filter: blur(16px);
-}
-
-.library-topbar-left,
-.library-topbar-actions,
-.library-topnav {
-  display: flex;
-  align-items: center;
-}
-
-.library-topbar-left {
-  gap: 4rem;
-}
-
-.library-topbar-actions {
-  gap: 1.5rem;
-}
-
-.library-logo {
-  color: var(--primary);
-  font-size: 1.25rem;
-  font-weight: 300;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-}
-
-.library-topnav {
-  gap: 1.5rem;
-}
-
-.library-topnav-link {
-  border: 0;
-  border-bottom: 2px solid transparent;
-  background: transparent;
-  color: var(--muted);
-  cursor: pointer;
-  font: inherit;
-  font-weight: 600;
-  padding: 0.35rem 0;
-  transition: color 180ms ease, border-color 180ms ease;
-}
-
-.library-topnav-link:hover,
-.library-topnav-link.active {
-  color: var(--primary);
-}
-
-.library-topnav-link.active {
-  border-color: var(--slate);
-}
-
 .library-sidebar {
-  position: fixed;
-  top: 4rem;
-  bottom: 0;
-  left: 0;
-  z-index: 40;
-  display: flex;
-  width: 16rem;
-  flex-direction: column;
-  justify-content: space-between;
-  border-right: 1px solid rgba(154, 140, 152, 0.12);
-  background: rgba(242, 233, 228, 0.58);
-  backdrop-filter: blur(14px);
+  background: rgba(242, 233, 228, 0.88);
 }
 
-.library-sidebar-heading {
-  padding: 2.5rem 1.5rem 1.25rem;
+.library-sidebar .sidebar-nav {
+  flex: 0;
 }
 
-.library-sidebar-heading h2 {
-  margin: 0;
-  color: var(--muted);
-  font-size: 0.76rem;
-  font-weight: 800;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-}
-
-.library-sidebar-heading p {
-  margin: 0.2rem 0 0;
-  color: rgba(154, 140, 152, 0.68);
-  font-size: 0.66rem;
-  letter-spacing: -0.02em;
-  text-transform: uppercase;
-}
-
-.library-side-nav,
-.library-sidebar-footer {
-  display: grid;
-  gap: 0.25rem;
-}
-
-.library-side-link {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  width: 100%;
-  border: 0;
-  border-right: 2px solid transparent;
-  background: transparent;
-  color: var(--muted);
-  cursor: pointer;
-  font: inherit;
-  padding: 1rem 1.5rem;
-  text-align: left;
-  transition:
-    background 180ms ease,
-    border-color 180ms ease,
-    color 180ms ease,
-    transform 180ms ease;
-}
-
-.library-side-link:hover {
-  background: rgba(252, 248, 251, 0.55);
-  color: var(--slate);
-  transform: translateX(0.25rem);
-}
-
-.library-side-link.active {
-  border-color: var(--primary);
-  background: rgba(201, 173, 167, 0.22);
-  color: var(--primary);
-  transform: none;
-}
-
-.library-side-link span:last-child {
-  font-weight: 600;
+.library-sidebar .sidebar-footer {
+  margin-top: auto;
 }
 
 .library-cta-wrap {
-  margin-top: 2.5rem;
-  padding: 0 1.5rem;
+  margin-top: 0.25rem;
+  padding: 0 0.5rem;
 }
 
 .library-new-project,
@@ -755,15 +625,10 @@
   transform: translateY(-1px);
 }
 
-.library-sidebar-footer {
-  border-top: 1px solid rgba(154, 140, 152, 0.12);
-  padding: 2.5rem 0;
-}
-
 .library-main {
   min-height: 100vh;
   margin-left: 16rem;
-  padding: 8rem 4rem 4rem;
+  padding: 2.5rem 4rem 4rem;
 }
 
 .library-grid {
@@ -1187,42 +1052,7 @@
 }
 
 @media (max-width: 820px) {
-  .library-topbar {
-    position: sticky;
-    flex-wrap: wrap;
-    height: auto;
-    gap: 1rem;
-    padding: 1rem;
-  }
-
-  .library-topbar-left {
-    width: 100%;
-    gap: 1rem;
-    justify-content: space-between;
-  }
-
-  .library-topnav {
-    display: none;
-  }
-
-  .library-sidebar {
-    position: static;
-    width: auto;
-    flex-direction: row;
-    overflow-x: auto;
-  }
-
-  .library-sidebar-heading,
-  .library-sidebar-footer,
   .library-cta-wrap {
-    display: none;
-  }
-
-  .library-side-nav {
-    display: flex;
-  }
-
-  .library-side-link span:last-child {
     display: none;
   }
 

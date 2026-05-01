@@ -16,9 +16,6 @@ const projectFooterItems = [
 const projectAvatarImage =
   'https://lh3.googleusercontent.com/aida-public/AB6AXuB_2a-JcOVn1-GLtr-7fO5So-3jG8TIrw0LwgP-57vEIdBv2PQEIXdYRrLM8ytLjCFGDDKoemtqOPGR0SV1lEb26Yu1z4MDgZGtj2U-oul8Meja0q7_4vyk27xkC8D3oBD_0OqpaH6tSkOcbWtJcOSP58F73hUDvxV2__196p8iW43Pt5AiUc6XrtUGoNwbUMGLqYF1nEzEFVerddtcIwSsGkvoYTpd0xiQWh3amleXsMJhDdSzznYUz0uqPgMuP6eNcc6psrdCdEI'
 
-const libraryAvatarImage =
-  'https://lh3.googleusercontent.com/aida-public/AB6AXuDKNN4KDRi1vDlVqkZNfpgFwG0_v-izowSv6G_ITtwryny98IgWWskSZqNYoPuic_V-eFi8PzWlnEswtpkX4KBqEU86HuvLnT3U2vLTu_4dj25-_xfAgJT5l9JjPgagdVfxKkcep3nd3seFF3CE6lYfpQg-TfA5GsO6wVUlPRe1ZZNL2bp3t165h-Ryo2G99JvCGTi5mx_8fYvJKTVOyIekIfgNWsodx_QIZT90PQ7nwo25yYe2PXNu0oYZghUbAJYDPS_YdvhVVwc'
-
 const libraryVideoImage =
   'https://lh3.googleusercontent.com/aida-public/AB6AXuDeGyes1h5bvKhfyLSrB_6E-_G1cKgvT9kt_jUC2qMSqT0Y32CpoNEoohO2vr7DSnVrlifb68uFVXEd27I8u1c97WUbckBh-pVjhjyHr4N_4lChbG7t87KlQxVSRXzXVLiI4-oVpkoB4P-lXh5yAOG2r48HyYWEvW-vDeGA1CC-B90x3XmJsU8HhZY3jcuMUxrni1s0lxMkssV1YDALdgRZO8DHziDMgnKcO1L16Eg-5PyK_dXTL4sLIwu2EkVmNRooWPYHzjo6t-o'
 
@@ -172,6 +169,20 @@ function MaterialIcon({ children, className = '' }) {
   )
 }
 
+function BrandLockup() {
+  return (
+    <div className="brand-lockup">
+      <div className="brand-icon">
+        <MaterialIcon>hub</MaterialIcon>
+      </div>
+      <div>
+        <p className="brand-name">CoreCast</p>
+        <p className="brand-kicker">PRO ANALYSIS</p>
+      </div>
+    </div>
+  )
+}
+
 function NavButton({ item, activePage, onNavigate, className = '' }) {
   const active = activePage === item.page
 
@@ -191,15 +202,7 @@ function NavButton({ item, activePage, onNavigate, className = '' }) {
 function ProjectSidebar({ activePage, onNavigate }) {
   return (
     <aside className="sidebar" aria-label="Primary navigation">
-      <div className="brand-lockup">
-        <div className="brand-icon">
-          <MaterialIcon>folder_special</MaterialIcon>
-        </div>
-        <div>
-          <p className="brand-name">CoreCast</p>
-          <p className="brand-kicker">PRO ANALYSIS</p>
-        </div>
-      </div>
+      <BrandLockup />
 
       <nav className="sidebar-nav">
         {pages.map((item) => (
@@ -329,37 +332,6 @@ function ProjectsPage({ activePage, onNavigate }) {
   )
 }
 
-function LibraryTopbar({ activePage, onNavigate }) {
-  return (
-    <header className="library-topbar">
-      <div className="library-topbar-left">
-        <span className="library-logo">CoreCast</span>
-        <nav className="library-topnav" aria-label="Top navigation">
-          {pages.map((item) => (
-            <NavButton
-              activePage={activePage}
-              className="library-topnav-link"
-              item={{ ...item, icon: null }}
-              key={item.label}
-              onNavigate={onNavigate}
-            />
-          ))}
-        </nav>
-      </div>
-
-      <div className="library-topbar-actions">
-        <button className="icon-button" type="button" aria-label="Notifications">
-          <MaterialIcon>notifications</MaterialIcon>
-        </button>
-        <button className="icon-button" type="button" aria-label="Settings">
-          <MaterialIcon>settings</MaterialIcon>
-        </button>
-        <img className="avatar" src={libraryAvatarImage} alt="User profile" />
-      </div>
-    </header>
-  )
-}
-
 function LibrarySidebar({ activePage, onNavigate, onNewProject }) {
   const lowerItems = [
     { icon: 'archive', label: 'Archive' },
@@ -367,34 +339,31 @@ function LibrarySidebar({ activePage, onNavigate, onNewProject }) {
   ]
 
   return (
-    <aside className="library-sidebar" aria-label="Workspace navigation">
-      <div>
-        <div className="library-sidebar-heading">
-          <h2>Workspace</h2>
-          <p>Premium Analysis</p>
-        </div>
-        <nav className="library-side-nav">
-          {pages.map((item) => (
-            <NavButton
-              activePage={activePage}
-              className="library-side-link"
-              item={item}
-              key={item.label}
-              onNavigate={onNavigate}
-            />
-          ))}
-        </nav>
-        <div className="library-cta-wrap">
-          <button className="library-new-project" type="button" onClick={onNewProject}>
-            <MaterialIcon>add</MaterialIcon>
-            <span>New Project</span>
-          </button>
-        </div>
+    <aside className="sidebar library-sidebar" aria-label="Primary navigation">
+      <BrandLockup />
+
+      <nav className="sidebar-nav">
+        {pages.map((item) => (
+          <NavButton
+            activePage={activePage}
+            className="nav-link"
+            item={item}
+            key={item.label}
+            onNavigate={onNavigate}
+          />
+        ))}
+      </nav>
+
+      <div className="library-cta-wrap">
+        <button className="library-new-project" type="button" onClick={onNewProject}>
+          <MaterialIcon>add</MaterialIcon>
+          <span>New Project</span>
+        </button>
       </div>
 
-      <div className="library-sidebar-footer">
+      <div className="sidebar-footer">
         {lowerItems.map((item) => (
-          <button className="library-side-link" type="button" key={item.label}>
+          <button className="nav-link footer-link" type="button" key={item.label}>
             <MaterialIcon>{item.icon}</MaterialIcon>
             <span>{item.label}</span>
           </button>
@@ -678,7 +647,6 @@ function LibraryPage({ activePage, onNavigate }) {
 
   return (
     <div className="library-shell">
-      <LibraryTopbar activePage={activePage} onNavigate={onNavigate} />
       <LibrarySidebar
         activePage={activePage}
         onNavigate={onNavigate}
