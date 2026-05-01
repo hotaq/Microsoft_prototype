@@ -941,7 +941,7 @@ function LibraryPage({ activePage, currentLecture, onNavigate, onProjectCreated 
                   onClick={() => downloadExtractedSlides(currentLecture, slideSegments)}
                 >
                   <MaterialIcon>download</MaterialIcon>
-                  <span>Download Slides</span>
+                  <span>Download</span>
                 </button>
               </div>
             </div>
