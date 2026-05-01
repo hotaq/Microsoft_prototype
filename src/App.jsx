@@ -793,9 +793,9 @@ function LibraryPage({ activePage, currentLecture, onNavigate, onProjectCreated 
                     {tag}
                   </span>
                 ))}
-                <button className="sync-action" type="button" onClick={() => setActiveSlideIndex(1)}>
-                  <MaterialIcon>sync_alt</MaterialIcon>
-                  <span>Sync Current Slide</span>
+                <button className="download-action" type="button">
+                  <MaterialIcon>download</MaterialIcon>
+                  <span>Download</span>
                 </button>
               </div>
             </div>
@@ -851,10 +851,6 @@ function LibraryPage({ activePage, currentLecture, onNavigate, onProjectCreated 
               </div>
             </section>
 
-            <section className="course-card">
-              <span>Course</span>
-              <strong>PHY101 - Introductory Physics</strong>
-            </section>
           </aside>
         </div>
       </main>

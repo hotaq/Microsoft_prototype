@@ -598,7 +598,7 @@
 }
 
 .library-new-project,
-.sync-action {
+.download-action {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -620,7 +620,7 @@
 }
 
 .library-new-project:hover,
-.sync-action:hover {
+.download-action:hover {
   opacity: 0.9;
   transform: translateY(-1px);
 }
@@ -827,7 +827,7 @@
   background: rgba(201, 173, 167, 0.12);
 }
 
-.sync-action {
+.download-action {
   border-radius: 999px;
   margin-left: auto;
   padding: 0.48rem 1rem;
@@ -964,8 +964,7 @@
 }
 
 .transcript-live strong,
-.metadata-card span,
-.course-card span {
+.metadata-card span {
   color: var(--slate);
   font-size: 0.65rem;
   font-weight: 900;
@@ -1000,22 +999,6 @@
   font-weight: 300;
   letter-spacing: -0.02em;
   margin-top: 0.35rem;
-}
-
-.course-card {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  align-items: center;
-  border: 1px solid rgba(154, 140, 152, 0.12);
-  border-radius: 1rem;
-  background: rgba(74, 78, 105, 0.14);
-  padding: 1.5rem;
-}
-
-.course-card strong {
-  color: var(--primary);
-  font-size: 0.9rem;
 }
 
 .library-fab {
@@ -1066,8 +1049,7 @@
   }
 
   .lecture-title-row,
-  .metadata-card,
-  .course-card {
+  .metadata-card {
     flex-direction: column;
     align-items: flex-start;
   }
@@ -1076,7 +1058,7 @@
     text-align: left;
   }
 
-  .sync-action {
+  .download-action {
     margin-left: 0;
   }
 }
