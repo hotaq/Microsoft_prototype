@@ -505,20 +505,6 @@ function UploadLectureModal({
 
   return (
     <div className="upload-overlay" role="dialog" aria-modal="true" aria-labelledby="upload-title">
-      <div className="upload-backdrop-context" aria-hidden="true">
-        <div>
-          <h2>Projects Overview</h2>
-          <p>Manage and analyze your recent lecture captures.</p>
-        </div>
-        <div className="upload-background-grid">
-          <span className="wide"><MaterialIcon>video_library</MaterialIcon></span>
-          <span><MaterialIcon>analytics</MaterialIcon></span>
-          <span />
-          <span />
-          <span />
-        </div>
-      </div>
-
       <section className="upload-modal">
         <header className="upload-header">
           <div>

@@ -1461,66 +1461,8 @@
   display: grid;
   place-items: center;
   overflow-y: auto;
-  background: rgba(34, 34, 59, 0.2);
+  background: rgba(242, 233, 228, 0.96);
   padding: 2rem;
-  backdrop-filter: blur(6px);
-}
-
-.upload-backdrop-context {
-  position: absolute;
-  inset: 5rem 4rem 4rem 20rem;
-  z-index: -1;
-  color: var(--primary);
-  opacity: 0.35;
-  pointer-events: none;
-}
-
-.upload-backdrop-context h2,
-.upload-backdrop-context p {
-  margin: 0;
-}
-
-.upload-backdrop-context h2 {
-  font-size: clamp(2rem, 5vw, 3rem);
-  font-weight: 650;
-  letter-spacing: -0.03em;
-}
-
-.upload-backdrop-context p {
-  color: var(--slate);
-  font-size: 1.08rem;
-  margin-top: 0.5rem;
-}
-
-.upload-background-grid {
-  display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  gap: 1.5rem;
-  margin-top: 3rem;
-}
-
-.upload-background-grid span {
-  min-height: 10rem;
-  border: 1px solid rgba(154, 140, 152, 0.25);
-  border-radius: 1rem;
-  background: rgba(229, 225, 228, 0.8);
-}
-
-.upload-background-grid .wide {
-  grid-column: span 8;
-  min-height: 24rem;
-}
-
-.upload-background-grid span:not(.wide) {
-  grid-column: span 4;
-}
-
-.upload-background-grid .material-symbols-outlined {
-  display: grid;
-  height: 100%;
-  place-items: center;
-  color: rgba(120, 118, 126, 0.8);
-  font-size: 4rem;
 }
 
 .upload-modal {
@@ -1531,9 +1473,8 @@
   overflow: hidden;
   border: 1px solid rgba(154, 140, 152, 0.22);
   border-radius: 1.25rem;
-  background: rgba(242, 233, 228, 0.86);
+  background: rgba(252, 248, 251, 0.98);
   box-shadow: 0 24px 52px -14px rgba(34, 34, 59, 0.28);
-  backdrop-filter: blur(22px);
 }
 
 .upload-header {
@@ -1888,10 +1829,6 @@
   .upload-overlay {
     align-items: start;
     padding: 1rem;
-  }
-
-  .upload-backdrop-context {
-    display: none;
   }
 
   .upload-header,
