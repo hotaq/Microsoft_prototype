@@ -127,6 +127,148 @@ function createUploadedProject({ languageProfile, mode, selectedFile, title, you
   }
 }
 
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;')
+}
+
+function slugifyFileName(value) {
+  return (
+    value
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .slice(0, 60) || 'corecast-lecture'
+  )
+}
+
+function buildExtractedSlidesDeck({ lecture, slides }) {
+  const slideMarkup = slides
+    .map(
+      (slide, index) => `
+        <article class="slide">
+          <p class="eyebrow">Extracted slide ${String(index + 1).padStart(2, '0')} · ${escapeHtml(slide.range)}</p>
+          <h2>${escapeHtml(slide.title)}</h2>
+          <img src="${libraryKeyframeImage}" alt="${escapeHtml(slide.label)} extracted slide preview" />
+          <section>
+            <h3>OCR text</h3>
+            <ul>
+              ${slide.ocr.map((line) => `<li>${escapeHtml(line)}</li>`).join('')}
+            </ul>
+          </section>
+        </article>`,
+    )
+    .join('')
+
+  return `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>${escapeHtml(lecture.title)} · Extracted Slides</title>
+    <style>
+      body {
+        margin: 0;
+        background: #f2e9e4;
+        color: #22223b;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+      main {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 48px 24px;
+      }
+      header {
+        margin-bottom: 32px;
+      }
+      h1, h2, h3, p {
+        margin: 0;
+      }
+      h1 {
+        font-size: clamp(32px, 6vw, 56px);
+        letter-spacing: -0.05em;
+      }
+      .eyebrow {
+        color: #9a8c98;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+      .slides {
+        display: grid;
+        gap: 28px;
+      }
+      .slide {
+        border: 1px solid rgba(154, 140, 152, 0.24);
+        border-radius: 24px;
+        background: rgba(255, 255, 255, 0.58);
+        box-shadow: 0 18px 42px rgba(34, 34, 59, 0.12);
+        padding: 28px;
+      }
+      .slide h2 {
+        margin-top: 8px;
+        font-size: clamp(24px, 4vw, 38px);
+        letter-spacing: -0.04em;
+      }
+      .slide img {
+        display: block;
+        width: 100%;
+        max-height: 460px;
+        object-fit: cover;
+        border-radius: 18px;
+        margin: 24px 0;
+      }
+      .slide section {
+        border-radius: 16px;
+        background: rgba(74, 78, 105, 0.08);
+        padding: 18px 22px;
+      }
+      .slide h3 {
+        color: #4a4e69;
+        font-size: 13px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+      .slide ul {
+        margin: 12px 0 0;
+        padding-left: 20px;
+      }
+      .slide li {
+        margin: 8px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <p class="eyebrow">CoreCast extracted slides · ${escapeHtml(lecture.sourceLabel)}</p>
+        <h1>${escapeHtml(lecture.title)}</h1>
+      </header>
+      <section class="slides">${slideMarkup}</section>
+    </main>
+  </body>
+</html>`
+}
+
+function downloadExtractedSlides(lecture, slides) {
+  const deck = buildExtractedSlidesDeck({ lecture, slides })
+  const blob = new Blob([deck], { type: 'text/html;charset=utf-8' })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+
+  link.href = url
+  link.download = `${slugifyFileName(lecture.title)}-extracted-slides.html`
+  document.body.append(link)
+  link.click()
+  link.remove()
+  window.setTimeout(() => URL.revokeObjectURL(url), 0)
+}
+
 const slideSegments = [
   {
     id: 'slide-01',
@@ -793,9 +935,13 @@ function LibraryPage({ activePage, currentLecture, onNavigate, onProjectCreated 
                     {tag}
                   </span>
                 ))}
-                <button className="download-action" type="button">
+                <button
+                  className="download-action"
+                  type="button"
+                  onClick={() => downloadExtractedSlides(currentLecture, slideSegments)}
+                >
                   <MaterialIcon>download</MaterialIcon>
-                  <span>Download</span>
+                  <span>Download Slides</span>
                 </button>
               </div>
             </div>
