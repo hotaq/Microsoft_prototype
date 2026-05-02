@@ -475,38 +475,20 @@ function MainPage({ onNavigate }) {
             </button>
           </div>
 
-          <div className="interface-mockup" aria-label="CoreCast synchronized lecture workspace preview">
-            <div className="mockup-topbar">
+          <div className="hero-visual-frame hero-image-card" aria-label="CoreCast lecture insight preview">
+            <img
+              src="/landing-hero.png"
+              alt="Professor teaching classical mechanics beside a chalkboard full of formulas"
+            />
+            <div className="hero-insight-card">
               <div>
-                <span />
-                <span />
-                <span />
+                <MaterialIcon>bolt</MaterialIcon>
+                <strong>Core Insight</strong>
               </div>
-              <strong>Physics 101 · Slide synced at 12:45</strong>
-            </div>
-
-            <div className="mockup-grid">
-              <div className="mockup-video">
-                <img src={libraryVideoImage} alt="Lecture video frame synced with the current slide" />
-                <button type="button" aria-label="Preview lecture playback">
-                  <MaterialIcon>play_arrow</MaterialIcon>
-                </button>
-              </div>
-
-              <div className="mockup-panel">
-                <div className="mockup-slide">
-                  <img src={libraryKeyframeImage} alt="Detected lecture slide keyframe" />
-                  <span>Slide 04</span>
-                </div>
-                <div className="mockup-summary">
-                  <p>Core Insight</p>
-                  <h2>Formula shift detected</h2>
-                  <span>
-                    AI paired the slide equation with the spoken explanation and created a
-                    jump-ready summary.
-                  </span>
-                </div>
-              </div>
+              <p>
+                AI detected a key formula change at 12:45. Click here to view the related
+                slide and derivation.
+              </p>
             </div>
           </div>
         </section>
