@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import './App.css'
 
 const pages = [
+  { page: 'home', icon: 'home', label: 'Home' },
   { page: 'library', icon: 'video_library', label: 'Library' },
   { page: 'projects', icon: 'folder_special', label: 'Projects' },
   { page: 'team', icon: 'group', label: 'Team' },
@@ -367,6 +368,27 @@ const processingSteps = [
   },
 ]
 
+const landingFeatures = [
+  {
+    icon: 'sync_alt',
+    title: 'Multimodal Syncing',
+    text: 'Your slides, transcripts, and video live in perfect harmony. When the professor speaks, the relevant slide appears automatically.',
+  },
+  {
+    icon: 'auto_awesome',
+    title: 'Interactive Summaries',
+    featured: true,
+    text: "Don't just watch—interact. CoreCast generates semantic summaries with deep links that jump directly to pivotal lecture moments.",
+  },
+  {
+    icon: 'query_stats',
+    title: 'Engagement Analytics',
+    text: "Visualize your learning journey, track mastered segments, and spot where you should re-watch based on the lecture's context.",
+  },
+]
+
+const universityLogos = ['STANFORD', 'MIT', 'OXFORD', 'HARVARD', 'ETH ZURICH']
+
 function MaterialIcon({ children, className = '' }) {
   return (
     <span aria-hidden="true" className={`material-symbols-outlined ${className}`}>
@@ -402,6 +424,149 @@ function NavButton({ item, activePage, onNavigate, className = '' }) {
       {item.icon ? <MaterialIcon>{item.icon}</MaterialIcon> : null}
       <span>{item.label}</span>
     </button>
+  )
+}
+
+function MainPage({ onNavigate }) {
+  return (
+    <div className="main-shell" id="product">
+      <header className="landing-nav">
+        <div className="landing-nav-inner">
+          <button className="landing-brand" type="button" onClick={() => onNavigate('home')}>
+            <span className="landing-brand-mark">
+              <MaterialIcon>hub</MaterialIcon>
+            </span>
+            <span>CoreCast</span>
+          </button>
+
+          <nav className="landing-links" aria-label="Marketing navigation">
+            <a className="active" href="#product">Product</a>
+            <a href="#features">Features</a>
+            <a href="#pricing">Pricing</a>
+          </nav>
+
+          <div className="landing-actions">
+            <button className="landing-login" type="button" onClick={() => onNavigate('projects')}>
+              Log In
+            </button>
+            <button className="landing-primary" type="button" onClick={() => onNavigate('library')}>
+              Get Started
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main className="landing-main">
+        <section className="hero-section" aria-labelledby="hero-title">
+          <span className="landing-pill">A New Era of Learning</span>
+          <h1 id="hero-title">Turn hours of lectures into minutes of insight.</h1>
+          <p>
+            CoreCast uses multimodal AI to sync your slides with transcripts, providing
+            interactive summaries that let you jump to the most important parts instantly.
+          </p>
+
+          <div className="hero-actions">
+            <button className="hero-primary" type="button" onClick={() => onNavigate('library')}>
+              Get Started for Free
+            </button>
+            <button className="hero-secondary" type="button" onClick={() => onNavigate('library')}>
+              <MaterialIcon>play_circle</MaterialIcon>
+              <span>Watch Demo</span>
+            </button>
+          </div>
+
+          <div className="interface-mockup" aria-label="CoreCast synchronized lecture workspace preview">
+            <div className="mockup-topbar">
+              <div>
+                <span />
+                <span />
+                <span />
+              </div>
+              <strong>Physics 101 · Slide synced at 12:45</strong>
+            </div>
+
+            <div className="mockup-grid">
+              <div className="mockup-video">
+                <img src={libraryVideoImage} alt="Lecture video frame synced with the current slide" />
+                <button type="button" aria-label="Preview lecture playback">
+                  <MaterialIcon>play_arrow</MaterialIcon>
+                </button>
+              </div>
+
+              <div className="mockup-panel">
+                <div className="mockup-slide">
+                  <img src={libraryKeyframeImage} alt="Detected lecture slide keyframe" />
+                  <span>Slide 04</span>
+                </div>
+                <div className="mockup-summary">
+                  <p>Core Insight</p>
+                  <h2>Formula shift detected</h2>
+                  <span>
+                    AI paired the slide equation with the spoken explanation and created a
+                    jump-ready summary.
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="social-proof" aria-label="Trusted universities">
+          <p>Trusted by students at leading universities</p>
+          <div>
+            {universityLogos.map((logo) => (
+              <span key={logo}>{logo}</span>
+            ))}
+          </div>
+        </section>
+
+        <section className="feature-section" id="features" aria-labelledby="features-title">
+          <div className="feature-heading">
+            <span className="landing-pill">Core workflow</span>
+            <h2 id="features-title">Everything stays synced while you learn.</h2>
+          </div>
+
+          <div className="feature-grid">
+            {landingFeatures.map((feature) => (
+              <article
+                className={`feature-card${feature.featured ? ' featured' : ''}`}
+                key={feature.title}
+              >
+                <div className="feature-icon">
+                  <MaterialIcon>{feature.icon}</MaterialIcon>
+                </div>
+                <h3>{feature.title}</h3>
+                <p>{feature.text}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="landing-cta" id="pricing" aria-labelledby="cta-title">
+          <div className="cta-glow" />
+          <h2 id="cta-title">Ready to master your curriculum?</h2>
+          <p>
+            Start with the MVP flow: upload a lecture, extract slides, pair transcripts, and
+            review everything in one focused workspace.
+          </p>
+          <button type="button" onClick={() => onNavigate('library')}>
+            Create Your Free Account
+          </button>
+        </section>
+      </main>
+
+      <footer className="landing-footer">
+        <strong>CoreCast</strong>
+        <nav aria-label="Footer navigation">
+          <a href="#product">Privacy Policy</a>
+          <a href="#product">Terms of Service</a>
+          <a href="#features">Contact</a>
+          <a href="#features">Twitter</a>
+          <a href="#features">LinkedIn</a>
+        </nav>
+        <span>© 2026 CoreCast. Precision in every frame.</span>
+      </footer>
+    </div>
   )
 }
 
@@ -1077,7 +1242,7 @@ function PlaceholderPage({ activePage, onNavigate }) {
 }
 
 function App() {
-  const [activePage, setActivePage] = useState('library')
+  const [activePage, setActivePage] = useState('home')
   const [projectItems, setProjectItems] = useState(initialProjects)
   const [currentLecture, setCurrentLecture] = useState(defaultLecture)
 
@@ -1089,6 +1254,10 @@ function App() {
   const handleProjectOpen = (project) => {
     setCurrentLecture(projectToLecture(project))
     setActivePage('library')
+  }
+
+  if (activePage === 'home') {
+    return <MainPage onNavigate={setActivePage} />
   }
 
   if (activePage === 'library') {
