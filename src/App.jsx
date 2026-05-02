@@ -389,6 +389,43 @@ const landingFeatures = [
 
 const universityLogos = ['STANFORD', 'MIT', 'OXFORD', 'HARVARD', 'ETH ZURICH']
 
+const analyticsTopics = [
+  { label: 'Deep Learning', value: 74, tone: 'primary' },
+  { label: 'Signal Analysis', value: 42, tone: 'primary' },
+  { label: 'Core Architecture', value: 18, tone: 'accent' },
+]
+
+const analyticsObservations = [
+  {
+    icon: 'auto_graph',
+    tone: 'primary',
+    title: 'Peak Cognition identified at 10:15 AM',
+    text: 'Based on interaction speed and accuracy metrics across 4 sessions.',
+  },
+  {
+    icon: 'psychology',
+    tone: 'accent',
+    title: 'New mastery path: Vector Dynamics',
+    text: 'Foundation blocks completed. Ready for advanced conceptual synthesis.',
+  },
+  {
+    icon: 'verified',
+    tone: 'primary',
+    title: 'Certification eligibility unlocked',
+    text: 'Content Analysis Tier 1 requirements met through sustained engagement.',
+  },
+]
+
+const contributionCells = Array.from({ length: 371 }, (_, index) => {
+  const wave = (index * 7 + Math.floor(index / 17) * 5 + Math.floor(index / 53) * 3) % 11
+
+  if (wave > 8) return 4
+  if (wave > 6) return 3
+  if (wave > 4) return 2
+  if (wave > 2) return 1
+  return 0
+})
+
 function MaterialIcon({ children, className = '' }) {
   return (
     <span aria-hidden="true" className={`material-symbols-outlined ${className}`}>
@@ -697,6 +734,172 @@ function ProjectsPage({ activePage, onNavigate, onProjectOpen, projectItems }) {
         </section>
       </main>
 
+    </div>
+  )
+}
+
+function AnalyticsPage({ activePage, onNavigate }) {
+  return (
+    <div className="app-shell analytics-shell">
+      <ProjectSidebar activePage={activePage} onNavigate={onNavigate} />
+
+      <main className="workspace analytics-workspace">
+        <header className="analytics-topbar">
+          <div className="analytics-title-block">
+            <p className="eyebrow">Performance Suite</p>
+            <h1>Knowledge Intelligence</h1>
+            <p>Visualize your learning velocity and conceptual mastery across all analyzed streams.</p>
+          </div>
+
+          <div className="analytics-top-actions">
+            <label className="search-field analytics-search" aria-label="Search analytics">
+              <MaterialIcon>search</MaterialIcon>
+              <input placeholder="Search analytics..." type="search" />
+            </label>
+            <div className="period-switcher" aria-label="Analytics time range">
+              {['Week', 'Month', 'Year'].map((period) => (
+                <button className={period === 'Week' ? 'active' : ''} key={period} type="button">
+                  {period}
+                </button>
+              ))}
+            </div>
+          </div>
+        </header>
+
+        <section className="analytics-grid" aria-label="Knowledge intelligence analytics">
+          <article className="analytics-card acquisition-card">
+            <header className="analytics-card-header">
+              <div>
+                <h2>Knowledge Acquisition</h2>
+                <p>Cumulative topics mastered vs target velocity</p>
+              </div>
+              <div className="chart-legend">
+                <span><i className="legend-dot active" />Active Learning</span>
+                <span><i className="legend-dot projected" />Projection</span>
+              </div>
+            </header>
+
+            <div className="analytics-chart" aria-label="Weekly knowledge acquisition chart">
+              <svg viewBox="0 0 800 300" role="img" aria-label="Active learning rising above projected velocity">
+                <line x1="0" x2="800" y1="50" y2="50" />
+                <line x1="0" x2="800" y1="150" y2="150" />
+                <line x1="0" x2="800" y1="250" y2="250" />
+                <path
+                  className="chart-fill"
+                  d="M0 280 Q 100 240, 200 250 T 400 180 T 600 120 T 800 50 L 800 300 L 0 300 Z"
+                />
+                <path
+                  className="chart-line"
+                  d="M0 280 Q 100 240, 200 250 T 400 180 T 600 120 T 800 50"
+                />
+                <path
+                  className="chart-projection"
+                  d="M0 290 Q 150 270, 300 280 T 600 240 T 800 220"
+                />
+              </svg>
+              <div className="chart-days" aria-hidden="true">
+                {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day) => (
+                  <span key={day}>{day}</span>
+                ))}
+              </div>
+            </div>
+          </article>
+
+          <div className="analytics-stack">
+            <article className="streak-card">
+              <div>
+                <span>Active Streak</span>
+                <strong>12</strong>
+                <em>Days</em>
+              </div>
+              <MaterialIcon>local_fire_department</MaterialIcon>
+            </article>
+
+            <article className="analytics-card distribution-card">
+              <h2>Topic Distribution</h2>
+              <div className="topic-list">
+                {analyticsTopics.map((topic) => (
+                  <div className="topic-row" key={topic.label}>
+                    <div>
+                      <span>{topic.label}</span>
+                      <strong>{topic.value}%</strong>
+                    </div>
+                    <div className="topic-track">
+                      <span
+                        className={`topic-fill ${topic.tone}`}
+                        style={{ width: `${topic.value}%` }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </article>
+          </div>
+
+          <article className="analytics-card discipline-card">
+            <header className="analytics-card-header">
+              <div>
+                <h2>Learning Discipline</h2>
+                <p>Chronological density of analysis sessions and content consumption</p>
+              </div>
+              <div className="intensity-legend">
+                <span>Less</span>
+                {[0, 1, 2, 3, 4].map((level) => (
+                  <i className={`contribution-cell intensity-${level}`} key={level} />
+                ))}
+                <span>More</span>
+              </div>
+            </header>
+
+            <div className="contribution-scroll" aria-label="Yearly learning contribution grid">
+              <div className="contribution-grid">
+                {contributionCells.map((intensity, index) => (
+                  <span
+                    className={`contribution-cell intensity-${intensity}`}
+                    key={`${index}-${intensity}`}
+                    title={`Session density level ${intensity}`}
+                  />
+                ))}
+              </div>
+            </div>
+          </article>
+
+          <article className="neural-insight-card">
+            <img src="/analytics-insight.jpg" alt="Abstract knowledge intelligence visualization" />
+            <div>
+              <span>Neural Insight</span>
+              <h2>Your focus on “Asymmetric Processing” increased by 140% this week.</h2>
+              <div className="insight-actions">
+                <button type="button">Review Topics</button>
+                <button type="button" aria-label="Open neural insight">
+                  <MaterialIcon>arrow_forward</MaterialIcon>
+                </button>
+              </div>
+            </div>
+          </article>
+
+          <article className="analytics-card observations-card">
+            <header className="observations-header">
+              <h2>Key Observations</h2>
+              <button type="button">View all</button>
+            </header>
+
+            <div className="observation-list">
+              {analyticsObservations.map((observation) => (
+                <div className="observation-item" key={observation.title}>
+                  <span className={`observation-icon ${observation.tone}`}>
+                    <MaterialIcon>{observation.icon}</MaterialIcon>
+                  </span>
+                  <div>
+                    <h3>{observation.title}</h3>
+                    <p>{observation.text}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </article>
+        </section>
+      </main>
     </div>
   )
 }
@@ -1262,6 +1465,10 @@ function App() {
         projectItems={projectItems}
       />
     )
+  }
+
+  if (activePage === 'analytics') {
+    return <AnalyticsPage activePage={activePage} onNavigate={setActivePage} />
   }
 
   return <PlaceholderPage activePage={activePage} onNavigate={setActivePage} />
